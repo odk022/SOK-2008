@@ -1,0 +1,1 @@
+#Her er R-kode til innlevering 1
