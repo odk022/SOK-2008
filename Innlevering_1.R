@@ -4,12 +4,11 @@
 #Download the Excel file "GCIPrawdatatest.xlsx".
 #I have taken away data from Norway 1980-1990 as it was faulty
 #Save it in an easily accessible location, such as a folder on your Desktop or in your personal folder.
-install.packages("tidyverse")
-install.packages("readxl")
-install.packages("ineq")
+
 library(tidyverse)  
 library(readxl) 
 library(ineq)
+library(ggpubr)
 
 # Set your working directory to the correct folder.
 # Insert your file path for 'YOURFILEPATH'.
@@ -45,12 +44,13 @@ ggplot(temp_data,
   ggtitle("Gini coefficients for Nordic countries")
 #This example is based on great webpages of CORE: https://www.core-econ.org/doing-economics/book/text/05-03.html#extension-r-walk-through-55-calculating-gini-coefficients-for-all-countries-and-all-years-using-a-loop. Take a look!
 
+######
+
 # Oppgave 6
 # Laster ned nødvendige pakker
 library(gglorenz)
-
-
 library(PxWebApiData)
+
 #Hvilke variabler som finnes i tabellen
 variables <- ApiData("https://data.ssb.no/api/v0/en/table/12558/", 
                      returnMetaFrames = TRUE)
@@ -70,7 +70,7 @@ values[[4]]$values
 #År
 values[[5]]$values
 data <- ApiData("https://data.ssb.no/api/v0/en/table/12558/",
-                Tid =c("2005","2020"), # Velg årene 2005 og 2020
+                Tid =c("2005", "2020"), # Velg årene 2005 og 2020
                 Desiler=c("01", "02", "03" ,"04", "05", "06" ,"07", "08" ,"09", "10"), #Vi velger alle desiler
                 InntektSkatt="00", #Vi velger samlet inntekt
                 ContentsCode="VerdiDesil", #Velger den høyeste verdien i desilen
@@ -81,8 +81,10 @@ data <- ApiData("https://data.ssb.no/api/v0/en/table/12558/",
 tabell<- data[[2]]
 
  
+
 # Lager Lorenz-kurve
 tabell %>%
+  drop_na(value) %>% 
   ggplot(aes(value)) +
   stat_lorenz(desc = FALSE) +
   coord_fixed() +
@@ -91,4 +93,9 @@ tabell %>%
   labs(x = "Kumulativ andel av befolkningen",
        y = "Kumulativ andel av inntektene",
        title = "Inntektsulikhet i befolkningen i Tromsø") +
-  annotate_ineq(tabell$value)
+  annotate_ineq(tabell$value) 
+
+?annotate_ineq
+?filter
+library(ggarrange)
+install.packages("ggarrange")
