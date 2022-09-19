@@ -14,7 +14,7 @@ install.packages("dplyr")
 # Set your working directory to the correct folder. 
 # Insert your file path for 'YOURFILEPATH'. 
 getwd()
-#setwd("")
+#setwd("C:/Users/OddVi/OneDrive/Dokumenter/Studier/SOK-2008/InnleveringerC:/Users/OddVi/OneDrive/Dokumenter/Studier/SOK-2008/Innleveringer")
 
 # You will need the following libraries for the assignment:
 
@@ -118,16 +118,63 @@ Excess_coverage <- ggplot(mapdata_1, aes(x =long, y = lat, group = group)) +
 Excess_coverage
 
 # 3. Koordinering av lønnsfastsettelse
+
 Coordination <- ggplot(mapdata_1, aes(x =long, y = lat, group = group)) +
   geom_polygon(aes(fill = coord), color = "black") +
-  scale_fill_gradient(name = "Excess_coverage in %", low = "grey", high = "red", na.value = "white") +
+  scale_fill_brewer(name="Coordination level", palette = "Set1") +
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks = element_blank(),
         axis.title.y = element_blank(),
         axis.title.x = element_blank(),
         rect = element_blank()) +
-  ggtitle("Excess_coverage in Europe")
+  ggtitle("Coordination of wage bargaining in Europe")
 Coordination
 
-#3. Diskuter det du ser i dine grafer ut ifra kapittel 3 i Boeri og van Ours. Kommenter hvordan det kan komme seg at de nordiske landene har sterke fagforeninger og relativt lav arbeidsledighet
+#3. Diskuter det du ser i dine grafer ut ifra kapittel 3 i Boeri og van Ours. 
+# Kommenter hvordan det kan komme seg at de nordiske landene har sterke fagforeninger 
+# og relativt lav arbeidsledighet
+
+# Jeg lager en tabell som oppsummerer dataene for hvert land.
+Oppsummering <- mapdata_1 %>% 
+  distinct(region, unempl, density, coverage, excov, coord)
+View(Oppsummering)
+
+# Er det en sammenheng mellom ledighet ("unempl") og fagforeningenes styrke målt 
+# ved organisasjonsprosent("density").
+# Av "Oppsummering" ser vi at det er syv land som har en arbeidsledighet på ti prosent eller mer.
+# I denne gruppen varierer organisasjonsgraden fra 9,9 % i Tyrkia til 32,5 % i Italia. 
+# En liten test på samvariasjon viser at det er en svak negativ sammenheng mellom disse variablene.
+test_1 <- cov(mapdata_1$unempl,mapdata_1$density)
+test_1
+
+
+# Er det sammenheng mellom ledighet og hvor stor andel av alle arbeidstakere som er omfattet av 
+# tariffavtaler("coverage"?
+# Vi ser at "coverage" varierer fra 8,5 % i Tyrkia til 100 % i Italia.
+# En tilsvarende test for samvariasjon viser at det er sterkere, men fremdeles svak negativ 
+# sammenheng mellom ledighet og omfang av tariffavtaler. 
+test_2 <- cov(mapdata_1$unempl,mapdata_1$coverage, use = "complete.obs")
+test_2
+
+# Er det en sammenheng mellom ledighet og Excess_coverage (Forskjellen mellom hvor stor andel
+# som omfattes av tariffavtalene (coverage) og andelen fagorganiserte (density)?
+# Vi ser av tabellen "Oppsummering" at for de ti landene med høyest ledighet spriker det veldig.
+# En test på samvariasjonen viser ingen sammenheng.
+test_3 <- cov(mapdata_1$unempl,mapdata_1$excov, use = "complete.obs")
+test_3
+
+# Det er en rekke årsaker til den nordiske situasjonen med relativt lav ledighet og
+# sterke fagforeninger. Jeg kan her nevne noen.
+# For det første er det samfunnsmessig aksept for at interesseorganisering på begge sider er
+# viktig og riktig. 
+# For det andre er samarbeidet mellom arbeidsgivere, arbeidstakere og 
+# politiske myndigheter så omfattende at det legger stort ansvar på partene til å komme fram 
+# til løsninger som ikke bidrar til økt ledighet. Det er for eksempel sjelden at en
+# hovedtariffavtale ender med reallønnsøkning, og sjelden at noen tariffområder kommer bedre
+# ut enn andre.
+# For det tredje er lønnsdannelsen ganske kontrollert slik at lite av lønnstileggene blir gitt
+# utenom oppgjørene. Det er få tariffområder som har lokale lønnsforhandlinger.  
+
+
+
