@@ -26,7 +26,6 @@ library(ggrepel) # The ggrepel package
 We want to create a graph that shows the correlation between minimum wages and unemployment. We need to search the OECD data frame for data on these topics.
 
 ```{r}
-
 # Search data set for minimum wages and unemployment statistics
 dsets<-get_datasets()
 search_dataset("wage",dsets)
@@ -48,18 +47,21 @@ unempl <- get_dataset("MIG_NUP_RATES_GENDER",
                       filter = "USA+CAN+FRA+GBR+DEU+NZL", 
                       pre_formatted = TRUE)
 
-# Selecting years, the unemployment rate of people born in the country, and both sexes
+# Selecting years, the unemployment rate of people born in the country, 
+# and both sexes
 unempl2019 <- subset(unempl, Time<2019 & RATE=="U_RATE" & BIRTH=="NB" & GENDER=="TOT")
 unempl2007_2019 <- subset(unempl2019, Time>2007)
 
-# Combining datasets - we need to merge by both country and year to get the right number in the right place
+# Combining datasets - we need to merge by both country and year 
+# to get the right number in the right place
 minwage_unempl <-left_join(minwage2007_2019, unempl2007_2019, by=c("COUNTRY","Time"))
 
 # removing countries with missing data
 complete_minwage_unempl <- na.omit(minwage_unempl)
 
 # transforming the minimum wage and uneployment rate to numeric variables
-complete_minwage_unempl$MinWage_0 <-as.numeric(complete_minwage_unempl$ObsValue.x) # MinWage is between 0 and 1, I want to transform it to between 0 and 100 later, so I call it MinWage_0 here
+complete_minwage_unempl$MinWage_0 <-as.numeric(complete_minwage_unempl$ObsValue.x) # MinWage is between
+# 0 and 1, I want to transform it to between 0 and 100 later, so I call it MinWage_0 here
 complete_minwage_unempl$UnEmpl <-as.numeric(complete_minwage_unempl$ObsValue.y)
 
 # Transforming Minimum wage to percent
@@ -68,7 +70,7 @@ complete_minwage_unempl$MinWage <- complete_minwage_unempl$MinWage_0 * 100
 
 # Code for the graph (you need to insert data and variable names)
 minwage_plot <- ggplot(data=complete_minwage_unempl,
-                       aes(x=complete_minwage_unempl$UnEmpl,y=complete_minwage_unempl$MinWage, 
+                       aes(x=UnEmpl,y=MinWage, 
                            group=COUNTRY, color=COUNTRY)) + 
   geom_line(aes(group=COUNTRY), size=1) +
   geom_point(size=2.5)+
@@ -81,7 +83,70 @@ minwage_plot <- ggplot(data=complete_minwage_unempl,
       filter(UnEmpl==min(UnEmpl)), 
     aes(UnEmpl, MinWage, fill = factor(COUNTRY), label = sprintf('%s', COUNTRY)), 
     color = "black", 
-    fill = "white") 
+    fill = "white") +
+  geom_text(aes(label = Time), color = "black", size = 3)
 
 minwage_plot
 ```
+
+Jeg klarte ikke å få dataene for hvert land i stigende rekkefølge, så vurderingene er gjort med basis i tabellen.  
+
+Jeg dukker litt dypere inn i hvert lands data og bruker det i kommentarene:
+
+```{r}
+## test for samvariasjon for Canada:
+test_CAN <- complete_minwage_unempl %>% 
+  filter(COUNTRY == "CAN") 
+
+cor(test_CAN$UnEmpl, test_CAN$MinWage, use = "everything")
+
+mean(test_CAN$MinWage)
+mean(test_CAN$UnEmpl)
+
+## test for samvariasjon for Frankrike:
+test_FRA <- complete_minwage_unempl %>% 
+  filter(COUNTRY == "FRA") 
+
+cor(test_FRA$UnEmpl, test_FRA$MinWage, use = "everything")
+
+mean(test_FRA$MinWage)
+mean(test_FRA$UnEmpl)
+
+## test for samvariasjon for Tyskland:
+test_DEU <- complete_minwage_unempl %>% 
+  filter(COUNTRY == "DEU") 
+
+cor(test_DEU$UnEmpl, test_DEU$MinWage, use = "everything")
+
+mean(test_DEU$MinWage)
+mean(test_DEU$UnEmpl)
+
+## test for samvariasjon for USA:
+test_USA <- complete_minwage_unempl %>% 
+  filter(COUNTRY == "USA") 
+
+cor(test_USA$UnEmpl, test_USA$MinWage, use = "everything")
+
+mean(test_USA$MinWage)
+mean(test_USA$UnEmpl)
+
+## test for samvariasjon for Storbritania:
+test_GBR <- complete_minwage_unempl %>% 
+  filter(COUNTRY == "GBR") 
+
+cor(test_GBR$UnEmpl, test_GBR$MinWage, use = "everything")
+
+mean(test_GBR$MinWage)
+mean(test_GBR$UnEmpl)
+
+## test for samvariasjon for Ny Zeeland:
+test_NZL <- complete_minwage_unempl %>% 
+  filter(COUNTRY == "NZL") 
+
+cor(test_NZL$UnEmpl, test_NZL$MinWage, use = "everything")
+
+mean(test_NZL$MinWage)
+mean(test_NZL$UnEmpl)
+
+```
+
